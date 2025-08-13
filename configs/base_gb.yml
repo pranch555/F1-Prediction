@@ -1,0 +1,47 @@
+experiment:
+  output_dir: artifacts/run-default
+  seed: 42
+
+logging:
+  level: INFO
+
+split:
+  n_splits: 5
+
+target:
+  label: winner
+
+data:
+  raw_dir: Data/raw
+  archive_files:
+    results: results.csv
+    winners: winners.csv
+    drivers: drivers_updated.csv
+    constructors: constructors.csv
+    races: races.csv
+    pit_stops: pit_stops.csv
+    lap_times: lap_times.csv
+    qualifying: qualifying.csv
+  parse_dates:
+    - Date
+
+features:
+  use_quali: true
+
+model:
+  name: gradient_boosting # aliases: gbr, gb
+  type: regression
+  params:
+    n_estimators: 300
+    learning_rate: 0.05
+    max_depth: 3
+    subsample: 1.0
+# early_stopping: (not used by sklearn; you can delete this block)
+
+evaluation:
+  top_k: [1, 3, 5, 10]
+  metrics:
+    - roc_auc
+    - average_precision
+    - name: log_loss
+      greater_is_better: false

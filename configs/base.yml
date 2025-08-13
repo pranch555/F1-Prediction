@@ -1,0 +1,50 @@
+experiment:
+  output_dir: artifacts/run-default
+  seed: 42
+
+logging:
+  level: INFO
+
+split:
+  n_splits: 5
+
+target:
+  label: winner
+
+data:
+  raw_dir: Data/raw
+  archive_files:
+    results: results.csv
+    winners: winners.csv
+    drivers: drivers_updated.csv
+    constructors: constructors.csv
+    races: races.csv
+    pit_stops: pit_stops.csv
+    lap_times: lap_times.csv
+    qualifying: qualifying.csv
+  parse_dates:
+    - Date
+
+features:
+  use_quali: true
+
+model:
+  name: xgboost # or 'logreg', 'gb', etc. depending on your train script
+  type: ranking # ranking | classification | regression
+  params:
+    n_estimators: 500
+    learning_rate: 0.05
+    max_depth: 6
+    subsample: 0.8
+    colsample_bytree: 0.8
+  early_stopping:
+    rounds: 50
+    metric: ndcg@10
+
+evaluation:
+  top_k: [1, 3, 5, 10]
+  metrics:
+    - roc_auc
+    - average_precision
+    - name: log_loss
+      greater_is_better: false

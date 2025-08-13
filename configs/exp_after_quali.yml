@@ -1,0 +1,66 @@
+# Predict race outcome AFTER qualifying is complete.
+# - Qualifying position/times + grid penalties are available.
+# - Keep leakage guards to ensure we never use race-only info (DNFs, etc.).
+
+defaults: []
+
+experiment:
+  name: exp_after_quali
+  mode: train
+  notes: "Ranking with quali + practice + static features."
+
+inference:
+  weekend_mode: post_quali
+  allow_future_leakage: false
+  drop_unavailable_features: true
+  on_missing_data: impute
+
+features:
+  include:
+    base_static: ${features.include.base_static}
+    weekend_practice: ${features.include.weekend_practice}
+    weekend_quali: ${features.include.weekend_quali} # enable quali-related features
+    weather_track: ${features.include.weather_track}
+  interactions: true
+  scaling: standard
+  impute: ${features.impute}
+  drop_na_threshold: ${features.drop_na_threshold}
+  on_missing_feature: warn # quality of quali data varies; warn instead of fail
+
+split:
+  strategy: group_k_fold
+  n_splits: 5
+  group_key: race_id
+  shuffle: false
+
+model:
+  name: xgboost
+  type: ranking
+  params:
+    n_estimators: 300 # less trees; quali is a strong signal
+    learning_rate: 0.05
+    max_depth: 6
+    subsample: 0.9
+    colsample_bytree: 0.7
+    reg_alpha: 0.0
+    reg_lambda: 1.0
+    n_jobs: -1
+    tree_method: hist
+  early_stopping:
+    rounds: 50
+    metric: ndcg@10
+    mode: max
+
+training:
+  epochs: 200
+  patience: 25
+
+evaluation:
+  metrics: [ndcg@10, map@10, spearman, rmse]
+  top_k: [1, 3, 5, 10]
+
+logging:
+  level: INFO
+
+tracking:
+  tags: [exp_after_quali, post_quali]
