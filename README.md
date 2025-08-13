@@ -78,7 +78,9 @@ Outputs (per run) in runs/exp/<timestamp>/:
 • optional: feature_importance.csv, oof_predictions.parquet
 
 ✅ Tests
-pytest -q
+
+
+**pytest -q**
 
 
 Typical guards included:
