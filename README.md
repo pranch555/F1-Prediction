@@ -79,6 +79,8 @@ Outputs (per run) in runs/exp/<timestamp>/:
 
 ✅ Tests
 pytest -q
+
+
 Typical guards included:
 • No leakage in rolling features (first race per driver has NaNs on rolling stats).
 • Per-race ranking sanity (each race should have multiple unique pred_rank values).
